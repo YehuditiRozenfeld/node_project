@@ -37,15 +37,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id', (req, res) => {
-    const id = parseInt(req.params.id, 10);
-    const course = courses.find(item => item.id === id);
-
-    if (!course) {
-        return res.status(404).json({ error: 'Course not found' });
-    }
-
-    res.json(course);
-});
-
-module.exports = router;
+module.exports = {
+    router,
+    courses
+};
