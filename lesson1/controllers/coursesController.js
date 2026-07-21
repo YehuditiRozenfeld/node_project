@@ -1,14 +1,14 @@
-const courses = require('../data/courses');
+const coursesService = require('../services/coursesService');
 
 // GET כל הקורסים
 const getAllCourses = (req, res) => {
-    res.json(courses);
+    res.json(coursesService.getAllCourses());
 };
 
 // GET קורס בודד לפי id
 const getCourseById = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const course = courses.find(item => item.id === id);
+    const course = coursesService.getCourseById(id);
 
     if (!course) {
         return res.status(404).json({ error: 'Course not found' });
@@ -19,42 +19,39 @@ const getCourseById = (req, res) => {
 
 // POST יצירת קורס חדש
 const createCourse = (req, res) => {
-    const newCourse = {
-        id: courses.length + 1,
+    const newCourse = coursesService.createCourse({
         name: req.body.name,
         description: req.body.description
-    };
+    });
 
-    courses.push(newCourse);
     res.status(201).json(newCourse);
 };
 
 // PUT עדכון קורס קיים
 const updateCourse = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const course = courses.find(item => item.id === id);
+    const updatedCourse = coursesService.updateCourse(id, {
+        name: req.body.name,
+        description: req.body.description
+    });
 
-    if (!course) {
+    if (!updatedCourse) {
         return res.status(404).json({ error: 'Course not found' });
     }
 
-    course.name = req.body.name !== undefined ? req.body.name : course.name;
-    course.description = req.body.description !== undefined ? req.body.description : course.description;
-
-    res.json(course);
+    res.json(updatedCourse);
 };
 
 // DELETE מחיקת קורס
 const deleteCourse = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const courseIndex = courses.findIndex(item => item.id === id);
+    const deletedCourse = coursesService.deleteCourse(id);
 
-    if (courseIndex === -1) {
+    if (!deletedCourse) {
         return res.status(404).json({ error: 'Course not found' });
     }
 
-    const deletedCourse = courses.splice(courseIndex, 1);
-    res.json({ message: 'Course deleted successfully', deletedItem: deletedCourse[0] });
+    res.json({ message: 'Course deleted successfully', deletedItem: deletedCourse });
 };
 
 module.exports = {

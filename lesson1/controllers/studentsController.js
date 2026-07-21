@@ -1,14 +1,14 @@
-const students = require('../data/students');
+const studentsService = require('../services/studentsService');
 
 // GET כל התלמידים
 const getAllStudents = (req, res) => {
-    res.json(students);
+    res.json(studentsService.getAllStudents());
 };
 
 // GET תלמיד בודד לפי id
 const getStudentById = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const student = students.find(item => item.id === id);
+    const student = studentsService.getStudentById(id);
 
     if (!student) {
         return res.status(404).json({ error: 'Student not found' });
@@ -19,42 +19,39 @@ const getStudentById = (req, res) => {
 
 // POST יצירת תלמיד חדש
 const createStudent = (req, res) => {
-    const newStudent = {
-        id: students.length + 1,
+    const newStudent = studentsService.createStudent({
         name: req.body.name,
         email: req.body.email
-    };
+    });
 
-    students.push(newStudent);
     res.status(201).json(newStudent);
 };
 
 // PUT עדכון תלמיד קיים
 const updateStudent = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const student = students.find(item => item.id === id);
+    const updatedStudent = studentsService.updateStudent(id, {
+        name: req.body.name,
+        email: req.body.email
+    });
 
-    if (!student) {
+    if (!updatedStudent) {
         return res.status(404).json({ error: 'Student not found' });
     }
 
-    student.name = req.body.name !== undefined ? req.body.name : student.name;
-    student.email = req.body.email !== undefined ? req.body.email : student.email;
-
-    res.json(student);
+    res.json(updatedStudent);
 };
 
 // DELETE מחיקת תלמיד
 const deleteStudent = (req, res) => {
     const id = parseInt(req.params.id, 10);
-    const studentIndex = students.findIndex(item => item.id === id);
+    const deletedStudent = studentsService.deleteStudent(id);
 
-    if (studentIndex === -1) {
+    if (!deletedStudent) {
         return res.status(404).json({ error: 'Student not found' });
     }
 
-    const deletedStudent = students.splice(studentIndex, 1);
-    res.json({ message: 'Student deleted successfully', deletedItem: deletedStudent[0] });
+    res.json({ message: 'Student deleted successfully', deletedItem: deletedStudent });
 };
 
 module.exports = {
