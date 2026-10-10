@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 const express = require('express');
 const { default: chalk } = require('chalk');
 const coursesRoutes = require('./routes/coursesRoutes');
@@ -6,11 +8,16 @@ const registrationsRoutes = require('./routes/registrationsRoutes');
 
 const app = express();
 const port = process.env.PORT || 3000;
+const authKey = process.env.AUTH_KEY;
+
+if (!authKey) {
+    throw new Error('Missing AUTH_KEY in environment variables. Add it to .env');
+}
 
 // middleware גלובלי לבדיקת auth-key בכל בקשה
 app.use((req, res, next) => {
-    const authKey = req.header('auth-key');
-    if (authKey !== '123') {
+    const requestAuthKey = req.header('auth-key');
+    if (requestAuthKey !== authKey) {
         return res.status(401).json({ error: 'Unauthorized: missing or invalid auth-key header' });
     }
     next();
